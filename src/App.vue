@@ -1,19 +1,24 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <h1>{{title}}</h1>
+    <Sudoku msg="Welcome to Your Vue.js App" />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Sudoku from "./components/Sudoku.vue";
 
 export default {
-  name: 'App',
+  name: "App",
+  data() {
+    return {
+      title: 'Sudoku',
+    };
+  },
   components: {
-    HelloWorld
-  }
-}
+    Sudoku,
+  },
+};
 </script>
 
 <style>
