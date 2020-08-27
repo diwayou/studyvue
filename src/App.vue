@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <h1>{{title}}</h1>
-    <Sudoku msg="Welcome to Your Vue.js App" />
+    <Sudoku />
   </div>
 </template>
 
@@ -12,7 +12,8 @@ export default {
   name: "App",
   data() {
     return {
-      title: 'Sudoku',
+      title: "Sudoku",
+      rooms: [],
     };
   },
   components: {
@@ -29,5 +30,9 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+
+h1 {
+  margin-bottom: 5px;
 }
 </style>

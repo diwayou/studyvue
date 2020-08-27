@@ -1,37 +1,54 @@
 <template>
   <div class="hello">
-    <table class="sudoku-table" v-if="game !== null">
-      <tbody>
-        <tr v-for="(row, irow) in game" :key="'row'+irow">
-          <td
-            v-for="(cell, icell) in row"
-            :key="'col'+icell"
-            :class="['i'+irow, 'j'+icell, cell.editable ? 'editable': 'not-editable', cell.hasConflict ? 'has-conflict' : 'no-conflict']"
-          >
-            <input
-              type="tel"
-              :value="cell.value"
-              :readonly="!cell.editable"
-              :key="irow + '-' + icell"
-              :data-i="irow"
-              :data-j="icell"
-              @click="cellClick"
-              @keyup="cellKeyUp"
-            />
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div v-if="game !== null">
+      <p>{{formatedTime}}</p>
+      <table class="sudoku-table">
+        <tbody>
+          <tr v-for="(row, irow) in game" :key="'row'+irow">
+            <td
+              v-for="(cell, icell) in row"
+              :key="'col'+icell"
+              :class="['i'+irow, 'j'+icell, cell.editable ? 'editable': 'not-editable', cell.hasConflict ? 'has-conflict' : 'no-conflict']"
+            >
+              <input
+                type="tel"
+                :value="cell.value"
+                :readonly="!cell.editable"
+                :key="irow + '-' + icell"
+                :data-i="irow"
+                :data-j="icell"
+                @click="cellClick"
+                @keyup="cellKeyUp"
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     <p v-else>
       <button @click="difficultyClick" data-difficulty="easy">Easy</button>
       <button @click="difficultyClick" data-difficulty="medium">Medium</button>
       <button @click="difficultyClick" data-difficulty="hard">Hard</button>
     </p>
+    <div class="controls" v-if="game !== null">
+      <button @click="save">Save</button>
+      <ul>
+        <li
+          v-for="sp in savepoints"
+          :key="sp.id"
+          @click="loadSavepoint"
+          :data-id="sp.id"
+        >
+        ID{{sp.id}}:&nbsp;&nbsp;{{timeFormat(sp.time)}}
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
 <script>
 import { randomBoard } from "./boards";
+import timeFormat from "@/utils/time.js";
 
 export default {
   name: "Sudoku",
@@ -41,9 +58,20 @@ export default {
   data() {
     return {
       game: null,
+      savepoints: [],
+      time: 0,
+      id: 0,
     };
   },
+  computed: {
+    formatedTime: function () {
+      return timeFormat(this.time);
+    },
+  },
   methods: {
+    timeFormat: function (t) {
+      return timeFormat(t)
+    },
     chunk: function (arr, len) {
       let chunks = [],
         i = 0,
@@ -80,6 +108,13 @@ export default {
       }
 
       this.game = game;
+
+      setInterval(this.setTimer, 1000);
+    },
+    setTimer: function () {
+      if (this.game != null && this.time !== null) {
+        this.time++;
+      }
     },
     markAllWithoutConflict: function () {
       for (let i = 0; i < 9; i++) {
@@ -251,13 +286,29 @@ export default {
         event.target.select();
       }
     },
+    save: function () {
+      this.savepoints.push({
+        id: this.id++,
+        time: this.time,
+        game: JSON.stringify(this.game),
+      });
+    },
+    loadSavepoint: function (event) {
+      let el = event.target;
+      let i = parseInt(el.getAttribute("data-id"));
+
+      let savepoint = this.savepoints[i];
+
+      this.game = JSON.parse(savepoint.game)
+      this.time = savepoint.time
+    },
   },
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less">
-@import url('sudoku.less');
+@import url("sudoku.less");
 h3 {
   margin: 40px 0 0;
 }
@@ -266,10 +317,14 @@ ul {
   padding: 0;
 }
 li {
-  display: inline-block;
   margin: 0 10px;
+  cursor: pointer;
 }
 a {
   color: #42b983;
+}
+p {
+  padding: 0;
+  margin: 0;
 }
 </style>
