@@ -38,17 +38,31 @@
           :key="sp.id"
           @click="loadSavepoint"
           :data-id="sp.id"
-        >
-        ID{{sp.id}}:&nbsp;&nbsp;{{timeFormat(sp.time)}}
-        </li>
+        >ID{{sp.id}}:&nbsp;&nbsp;{{timeFormat(sp.time)}}</li>
       </ul>
+    </div>
+
+    <div v-if="game !== null">
+      <div v-if="answers !== null">
+        <div v-for="answer in answers" :key="answer">
+          <pre v-for="row in answer" :key="row">
+          {{JSON.stringify(row)}}
+        </pre>
+          <hr />
+        </div>
+      </div>
+      <div v-else>
+        <button @click="showAnswers">Answer</button>
+        <button @click="checkAnswers">Check</button>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import { randomBoard } from "./boards";
-import timeFormat from "@/utils/time.js";
+import timeFormat from "@/utils/time";
+import solve from "./solve";
 
 export default {
   name: "Sudoku",
@@ -58,9 +72,12 @@ export default {
   data() {
     return {
       game: null,
+      origGame: null,
       savepoints: [],
       time: 0,
       id: 0,
+      answers: null,
+      answersCache: null,
     };
   },
   computed: {
@@ -69,8 +86,36 @@ export default {
     },
   },
   methods: {
+    showAnswers: function() {
+      this.answers = this.calcAnswer()
+    },
+    checkAnswers: function() {
+      let ans = this.calcAnswer();
+
+      let re = ans[0]
+      for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+          let cur = this.game[i][j];
+          if (cur.value !== null && re[i][j] != cur.value) {
+            cur.hasConflict = true
+          }
+        }
+      }
+    },
+    calcAnswer: function () {
+      if (this.answersCache !== null) {
+        return this.answersCache;
+      }
+
+      let re = solve(this.origGame);
+      this.answersCache = re.map((s) => {
+        return this.chunk(s, 9);
+      });
+
+      return this.answersCache
+    },
     timeFormat: function (t) {
-      return timeFormat(t)
+      return timeFormat(t);
     },
     chunk: function (arr, len) {
       let chunks = [],
@@ -108,6 +153,7 @@ export default {
       }
 
       this.game = game;
+      this.origGame = JSON.parse(JSON.stringify(game));
 
       setInterval(this.setTimer, 1000);
     },
@@ -299,8 +345,8 @@ export default {
 
       let savepoint = this.savepoints[i];
 
-      this.game = JSON.parse(savepoint.game)
-      this.time = savepoint.time
+      this.game = JSON.parse(savepoint.game);
+      this.time = savepoint.time;
     },
   },
 };
@@ -323,7 +369,8 @@ li {
 a {
   color: #42b983;
 }
-p {
+p,
+pre {
   padding: 0;
   margin: 0;
 }
