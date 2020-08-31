@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import { randomBoard } from "./boards";
+import randomBoard from "./randomBoard";
 import timeFormat from "@/utils/time";
 import solve from "./solve";
 
@@ -81,28 +81,28 @@ export default {
     };
   },
   computed: {
-    formatedTime: function () {
+    formatedTime() {
       return timeFormat(this.time);
     },
   },
   methods: {
-    showAnswers: function() {
-      this.answers = this.calcAnswer()
+    showAnswers() {
+      this.answers = this.calcAnswer();
     },
-    checkAnswers: function() {
+    checkAnswers() {
       let ans = this.calcAnswer();
 
-      let re = ans[0]
+      let re = ans[0];
       for (let i = 0; i < 9; i++) {
         for (let j = 0; j < 9; j++) {
           let cur = this.game[i][j];
           if (cur.value !== null && re[i][j] != cur.value) {
-            cur.hasConflict = true
+            cur.hasConflict = true;
           }
         }
       }
     },
-    calcAnswer: function () {
+    calcAnswer() {
       if (this.answersCache !== null) {
         return this.answersCache;
       }
@@ -112,12 +112,12 @@ export default {
         return this.chunk(s, 9);
       });
 
-      return this.answersCache
+      return this.answersCache;
     },
-    timeFormat: function (t) {
+    timeFormat(t) {
       return timeFormat(t);
     },
-    chunk: function (arr, len) {
+    chunk(arr, len) {
       let chunks = [],
         i = 0,
         n = arr.length;
@@ -126,7 +126,7 @@ export default {
       }
       return chunks;
     },
-    difficultyClick: function (event) {
+    difficultyClick(event) {
       event.preventDefault();
 
       let board = randomBoard(event.target.getAttribute("data-difficulty"));
@@ -157,19 +157,19 @@ export default {
 
       setInterval(this.setTimer, 1000);
     },
-    setTimer: function () {
+    setTimer() {
       if (this.game != null && this.time !== null) {
         this.time++;
       }
     },
-    markAllWithoutConflict: function () {
+    markAllWithoutConflict() {
       for (let i = 0; i < 9; i++) {
         for (let j = 0; j < 9; j++) {
           this.game[i][j].hasConflict = false;
         }
       }
     },
-    checkSubset: function (array) {
+    checkSubset(array) {
       let nums = new Map();
       for (let i = 0; i < 9; i++) {
         if (array[i].value !== null && nums.has(array[i].value)) {
@@ -179,7 +179,7 @@ export default {
         nums.set(array[i].value, i);
       }
     },
-    checkConflicts: function () {
+    checkConflicts() {
       this.markAllWithoutConflict();
 
       // check horizontal lines
@@ -300,7 +300,7 @@ export default {
         c[8][8],
       ]);
     },
-    cellKeyUp: function (event) {
+    cellKeyUp(event) {
       let el = event.target;
       let value = el.value;
       if (value.length > 1) {
@@ -325,21 +325,21 @@ export default {
         event.target.blur();
       }
     },
-    cellClick: function (event) {
+    cellClick(event) {
       if (event.target.readOnly) {
         event.target.blur();
       } else {
         event.target.select();
       }
     },
-    save: function () {
+    save() {
       this.savepoints.push({
         id: this.id++,
         time: this.time,
         game: JSON.stringify(this.game),
       });
     },
-    loadSavepoint: function (event) {
+    loadSavepoint(event) {
       let el = event.target;
       let i = parseInt(el.getAttribute("data-id"));
 

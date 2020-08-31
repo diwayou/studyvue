@@ -890,4 +890,4 @@ function randomBoard(difficulty) {
   }
 }
 
-export {randomBoard}
+export default randomBoard
